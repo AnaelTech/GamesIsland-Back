@@ -6,6 +6,12 @@
 parameters:
 
 services:
+    acme_api.event.hash_user_password_listener:
+        class: App\EventListener\HashUserPasswordListener
+        arguments:
+            $hasher: "@security.password_hasher"
+        tags:
+        - { name: "doctrine.event_listener", event: "prePersist" }
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
