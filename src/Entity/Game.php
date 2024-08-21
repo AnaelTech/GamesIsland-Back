@@ -46,6 +46,9 @@ class Game
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updateAt = null;
 
+    #[ORM\ManyToOne(inversedBy: 'games')]
+    private ?Developer $developer = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -167,6 +170,18 @@ class Game
     public function setUpdateAt(\DateTimeInterface $updateAt): static
     {
         $this->updateAt = $updateAt;
+
+        return $this;
+    }
+
+    public function getDeveloper(): ?Developer
+    {
+        return $this->developer;
+    }
+
+    public function setDeveloper(?Developer $developer): static
+    {
+        $this->developer = $developer;
 
         return $this;
     }
