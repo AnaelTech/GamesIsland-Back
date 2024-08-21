@@ -5,8 +5,10 @@ namespace App\Entity;
 use App\Repository\DeveloperRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: DeveloperRepository::class)]
+#[ApiResource()]
 class Developer
 {
     #[ORM\Id]
