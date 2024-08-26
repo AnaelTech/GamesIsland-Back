@@ -11,12 +11,8 @@ use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: DeveloperRepository::class)]
 #[ApiResource()]
-class Developer
+class Developer extends User
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $studioName = null;
@@ -33,8 +29,6 @@ class Developer
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updatedAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'developers')]
-    private ?User $user = null;
 
     /**
      * @var Collection<int, Game>
@@ -45,11 +39,7 @@ class Developer
     public function __construct()
     {
         $this->games = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
+        $this->createdAt = new \DateTime();
     }
 
     public function getStudioName(): ?string
@@ -108,18 +98,6 @@ class Developer
     public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
 
         return $this;
     }

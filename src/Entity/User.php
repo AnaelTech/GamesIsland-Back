@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
@@ -13,6 +11,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'dtype', type: 'string')]
+#[ORM\DiscriminatorMap(['user' => User::class, 'developer' => Developer::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ApiResource()]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -50,15 +51,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $isActive = null;
 
-    /**
-     * @var Collection<int, Developer>
-     */
-    #[ORM\OneToMany(targetEntity: Developer::class, mappedBy: 'user')]
-    private Collection $developers;
-
     public function __construct()
     {
-        $this->developers = new ArrayCollection();
+        $this->dateJoined = new \DateTime();
+        $this->isActive = false;
     }
 
     public function getId(): ?int
@@ -172,35 +168,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
-    }
-
-    /**
-     * @return Collection<int, Developer>
-     */
-    public function getDevelopers(): Collection
-    {
-        return $this->developers;
-    }
-
-    public function addDeveloper(Developer $developer): static
-    {
-        if (!$this->developers->contains($developer)) {
-            $this->developers->add($developer);
-            $developer->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDeveloper(Developer $developer): static
-    {
-        if ($this->developers->removeElement($developer)) {
-            // set the owning side to null (unless already changed)
-            if ($developer->getUser() === $this) {
-                $developer->setUser(null);
-            }
-        }
-
-        return $this;
     }
 }
