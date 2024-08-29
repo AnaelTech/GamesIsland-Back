@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
@@ -51,10 +53,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $isActive = null;
 
+    /**
+     * @var Collection<int, WishList>
+     */
+    #[ORM\OneToMany(targetEntity: WishList::class, mappedBy: 'User')]
+    private Collection $wishLists;
+
     public function __construct()
     {
         $this->dateJoined = new \DateTime();
         $this->isActive = false;
+        $this->wishLists = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -168,5 +177,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
+    }
+
+    /**
+     * @return Collection<int, WishList>
+     */
+    public function getWishLists(): Collection
+    {
+        return $this->wishLists;
+    }
+
+    public function addWishList(WishList $wishList): static
+    {
+        if (!$this->wishLists->contains($wishList)) {
+            $this->wishLists->add($wishList);
+            $wishList->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWishList(WishList $wishList): static
+    {
+        if ($this->wishLists->removeElement($wishList)) {
+            // set the owning side to null (unless already changed)
+            if ($wishList->getUser() === $this) {
+                $wishList->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

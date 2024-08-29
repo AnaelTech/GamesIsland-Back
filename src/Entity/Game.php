@@ -49,6 +49,9 @@ class Game
     #[ORM\ManyToOne(inversedBy: 'games')]
     private ?Developer $developer = null;
 
+    #[ORM\ManyToOne(inversedBy: 'Game')]
+    private ?WishList $wishList = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -182,6 +185,18 @@ class Game
     public function setDeveloper(?Developer $developer): static
     {
         $this->developer = $developer;
+
+        return $this;
+    }
+
+    public function getWishList(): ?WishList
+    {
+        return $this->wishList;
+    }
+
+    public function setWishList(?WishList $wishList): static
+    {
+        $this->wishList = $wishList;
 
         return $this;
     }
