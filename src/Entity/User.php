@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,24 +12,52 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Controller\meController;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\GetCollection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'dtype', type: 'string')]
 #[ORM\DiscriminatorMap(['user' => User::class, 'developer' => Developer::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[ApiResource()]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(
+            name: 'me',
+            uriTemplate: '/me',
+            controller: meController::class,
+            read: false
+        ),
+        new Get(),
+        new Patch(),
+        new Post(),
+        new Delete()
+    ],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:read']],
+)]
+#[ApiFilter(SearchFilter::class, properties: ['email' => 'exact'])]
+#[ApiFilter(SearchFilter::class, properties: ['roles' => 'partial', 'id' => 'exact'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    #[Groups(["user:read"])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     protected ?int $id = null;
 
+    #[Groups(["user:read"])]
     #[ORM\Column(length: 255)]
     private ?string $username = null;
 
+    #[Groups(["user:read"])]
     #[ORM\Column(length: 255)]
     #[Assert\Email(message: 'L\'adresse email "{{ value }}" n\'est pas valide.')]
     private ?string $email = null;
@@ -35,6 +65,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var list<string> The user roles
      */
+    #[Groups(["user:read"])]
     #[ORM\Column]
     private array $roles = [];
 
@@ -47,15 +78,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateJoined = null;
 
+    #[Groups(["user:read"])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatar = null;
 
+    #[Groups(["user:read"])]
     #[ORM\Column]
     private ?bool $isActive = null;
 
     /**
      * @var Collection<int, WishList>
      */
+    #[Groups(["user:read"])]
     #[ORM\OneToMany(targetEntity: WishList::class, mappedBy: 'User')]
     private Collection $wishLists;
 

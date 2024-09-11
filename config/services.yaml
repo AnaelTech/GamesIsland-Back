@@ -6,6 +6,11 @@
 parameters:
 
 services:
+    acme_api.event.response_listener:
+        class: App\EventListener\ResponseListener
+        tags:
+            - { name: "kernel.event_listener", event: "kernel.response" }
+            
     acme_api.event.jwt_created_listener:
         class: App\EventListener\JwtListener
         arguments: ["@request_stack"]
@@ -22,6 +27,9 @@ services:
             $hasher: "@security.password_hasher"
         tags:
         - { name: "doctrine.event_listener", event: "prePersist" }
+
+    
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
