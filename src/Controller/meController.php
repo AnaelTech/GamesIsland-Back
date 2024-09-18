@@ -25,7 +25,7 @@ class meController extends AbstractController
         }
 
         $jsonLdData = $normalizer->normalize($user, 'jsonld', [
-            'groups' => ['user:read'], // Assurez-vous que le groupe est bien défini dans votre entité
+            'groups' => ['user:read'],
         ]);
 
         return $this->json($jsonLdData);
