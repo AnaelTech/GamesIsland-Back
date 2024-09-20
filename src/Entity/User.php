@@ -55,10 +55,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Groups(["user:read"])]
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom d\'utilisateur ne doit pas être vide.')]
+    #[Assert\Length(min: 3, minMessage: 'Le nom d\'utilisateur doit faire au moins 3 caractères.')]
     private ?string $username = null;
 
     #[Groups(["user:read"])]
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'L\'email ne doit pas être vide.')]
     #[Assert\Email(message: 'L\'adresse email "{{ value }}" n\'est pas valide.')]
     private ?string $email = null;
 
@@ -72,7 +75,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
+    #[Groups(["user:read"])]
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire.')]
     private ?string $password = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

@@ -19,6 +19,7 @@ class HashUserPasswordListener
     {
         $entity = $event->getObject();
 
+
         if (!$entity instanceof User) {
             return;
         }

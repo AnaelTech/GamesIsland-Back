@@ -15,7 +15,6 @@ class ResponseListener
 
         $request = $event->getRequest();
         if ($request->isMethod('OPTIONS')) {
-            // Optionnel : configure une réponse vide pour les requêtes OPTIONS
             $response = $event->getResponse() ?: new Response();
             $response->setContent('');
             $event->setResponse($response);
