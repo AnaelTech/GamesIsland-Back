@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Put;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType('JOINED')]
@@ -37,11 +38,12 @@ use ApiPlatform\Metadata\GetCollection;
         ),
         new Get(),
         new Patch(),
+        new Put(),
         new Post(),
         new Delete()
     ],
-    normalizationContext: ['groups' => ['user:read']],
-    denormalizationContext: ['groups' => ['user:read']],
+    normalizationContext: ['groups' => ['user:read', 'user:write']],
+    denormalizationContext: ['groups' => ['user:read', 'user:write']],
 )]
 #[ApiFilter(SearchFilter::class, properties: ['email' => 'exact'])]
 #[ApiFilter(SearchFilter::class, properties: ['roles' => 'partial', 'id' => 'exact'])]
@@ -53,13 +55,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     protected ?int $id = null;
 
-    #[Groups(["user:read"])]
+    #[Groups(["user:read", "user:write"])]
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom d\'utilisateur ne doit pas être vide.')]
     #[Assert\Length(min: 3, minMessage: 'Le nom d\'utilisateur doit faire au moins 3 caractères.')]
     private ?string $username = null;
 
-    #[Groups(["user:read"])]
+    #[Groups(["user:read", "user:write"])]
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'L\'email ne doit pas être vide.')]
     #[Assert\Email(message: 'L\'adresse email "{{ value }}" n\'est pas valide.')]
@@ -75,7 +77,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[Groups(["user:read"])]
+    #[Groups(["user:read", "user:write"])]
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le mot de passe est obligatoire.')]
     private ?string $password = null;
@@ -83,7 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateJoined = null;
 
-    #[Groups(["user:read"])]
+    #[Groups(["user:read", "user:write"])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatar = null;
 
