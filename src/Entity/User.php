@@ -100,6 +100,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: WishList::class, mappedBy: 'User')]
     private Collection $wishLists;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $resetToken = null;
+
     public function __construct()
     {
         $this->dateJoined = new \DateTime();
@@ -248,5 +251,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $token): static
+    {
+        $this->resetToken = $token;
+        return $this; // Return $this for method chaining
     }
 }

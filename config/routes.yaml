@@ -10,3 +10,13 @@ api_login_check:
 me:
     path: /api/me
     controller: App\Controller\meController
+
+forgot_password:
+  path: /api/forgot-password
+  controller: App\Controller\ForgotPasswordController::forgotPassword
+  methods: [POST]
+
+reset_password:
+  path: /api/reset-password
+  controller: App\Controller\resetPasswordController::resetPassword
+  methods: [POST]

@@ -14,7 +14,7 @@ class meController extends AbstractController
 {
     public function __invoke(Request $request, NormalizerInterface $normalizer): Response
     {
-        // Récupération de l'utilisateur authentifié
+        // Continuer avec l'authentification si le cookie est bien présent
         $user = $this->getUser();
 
         if (!$user) {

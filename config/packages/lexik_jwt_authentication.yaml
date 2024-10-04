@@ -6,10 +6,10 @@ lexik_jwt_authentication:
     token_ttl: 604800 
     user_id_claim: email
     token_extractors:
-        authorization_header:
-            enabled: true
-            prefix:  Bearer
-            name:    Authorization
+        # authorization_header:
+        #     enabled: true
+        #     prefix:  Bearer
+        #     name:    Authorization
         cookie:  
             enabled: true
             name: BEARER
