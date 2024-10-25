@@ -1,11 +1,12 @@
 <?php
-
+// Game.php
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\GameRepository;
-use Doctrine\DBAL\Types\Types;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 
@@ -22,13 +23,14 @@ class Game
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: 'text')]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 0)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+
     private ?string $price = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $releaseDate = null;
 
     #[ORM\Column(length: 255)]
@@ -38,22 +40,31 @@ class Game
     private ?string $platform = null;
 
     #[ORM\Column(length: 255)]
+
     private ?string $coverImage = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $trailerUrl = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $updateAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'games')]
     private ?Developer $developer = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Game')]
-    private ?WishList $wishList = null;
+    /**
+     * @var Collection<int, WishList>
+     */
+    #[ORM\ManyToMany(targetEntity: WishList::class, mappedBy: 'games')]
+    private Collection $wishLists;
+
+    public function __construct()
+    {
+        $this->wishLists = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -180,11 +191,6 @@ class Game
         return $this;
     }
 
-    public function getDeveloper(): ?Developer
-    {
-        return $this->developer;
-    }
-
     public function setDeveloper(?Developer $developer): static
     {
         $this->developer = $developer;
@@ -192,14 +198,31 @@ class Game
         return $this;
     }
 
-    public function getWishList(): ?WishList
+    public function getDeveloper(): ?Developer
     {
-        return $this->wishList;
+        return $this->developer;
     }
 
-    public function setWishList(?WishList $wishList): static
+    /**
+     * @return Collection<int, WishList>
+     */
+    public function getWishLists(): Collection
     {
-        $this->wishList = $wishList;
+        return $this->wishLists;
+    }
+
+    public function addWishList(WishList $wishList): static
+    {
+        if (!$this->wishLists->contains($wishList)) {
+            $this->wishLists->add($wishList);
+        }
+
+        return $this;
+    }
+
+    public function removeWishList(WishList $wishList): static
+    {
+        $this->wishLists->removeElement($wishList);
 
         return $this;
     }

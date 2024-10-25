@@ -97,7 +97,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var Collection<int, WishList>
      */
     #[Groups(["user:read"])]
-    #[ORM\OneToMany(targetEntity: WishList::class, mappedBy: 'User')]
+    #[ORM\OneToMany(targetEntity: WishList::class, mappedBy: "user")]
     private Collection $wishLists;
 
     #[ORM\Column(length: 255, nullable: true)]

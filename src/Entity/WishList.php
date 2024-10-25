@@ -1,13 +1,13 @@
 <?php
-
+// WishList.php
 namespace App\Entity;
 
 use App\Repository\WishListRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: WishListRepository::class)]
 #[ApiResource()]
@@ -21,13 +21,16 @@ class WishList
     /**
      * @var Collection<int, Game>
      */
-    #[ORM\OneToMany(targetEntity: Game::class, mappedBy: 'wishList')]
-    private Collection $Game;
+    #[ORM\ManyToMany(targetEntity: Game::class, inversedBy: 'wishLists')]
+    #[ORM\JoinTable(name: 'wishlist_games')]
+    #[Groups(["wishlist:read", "user:read"])]
+    private Collection $games;
 
-    #[ORM\ManyToOne(inversedBy: 'wishLists')]
-    private ?User $User = null;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "wishLists")]
+    private ?User $user = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(nullable: true)]
@@ -35,7 +38,7 @@ class WishList
 
     public function __construct()
     {
-        $this->Game = new ArrayCollection();
+        $this->games = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -49,14 +52,14 @@ class WishList
      */
     public function getGames(): Collection
     {
-        return $this->Game;
+        return $this->games;
     }
 
     public function addGame(Game $game): static
     {
-        if (!$this->Game->contains($game)) {
-            $this->Game->add($game);
-            $game->setWishList($this);
+        if (!$this->games->contains($game)) {
+            $this->games->add($game);
+            $game->addWishList($this); // Update inverse side
         }
 
         return $this;
@@ -64,11 +67,8 @@ class WishList
 
     public function removeGame(Game $game): static
     {
-        if ($this->Game->removeElement($game)) {
-            // set the owning side to null (unless already changed)
-            if ($game->getWishList() === $this) {
-                $game->setWishList(null);
-            }
+        if ($this->games->removeElement($game)) {
+            $game->removeWishList($this); // Update inverse side
         }
 
         return $this;
@@ -76,12 +76,12 @@ class WishList
 
     public function getUser(): ?User
     {
-        return $this->User;
+        return $this->user;
     }
 
-    public function setUser(?User $User): static
+    public function setUser(?User $user): static
     {
-        $this->User = $User;
+        $this->user = $user;
 
         return $this;
     }
