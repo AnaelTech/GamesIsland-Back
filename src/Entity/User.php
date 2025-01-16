@@ -5,8 +5,6 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
@@ -93,12 +91,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $isActive = null;
 
-    /**
-     * @var Collection<int, WishList>
-     */
     #[Groups(["user:read"])]
-    #[ORM\OneToMany(targetEntity: WishList::class, mappedBy: "user")]
-    private Collection $wishLists;
+    #[ORM\OneToOne(targetEntity: WishList::class, mappedBy: "user", cascade: ["persist", "remove"])]
+    private ?WishList $wishList = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $resetToken = null;
@@ -107,7 +102,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->dateJoined = new \DateTime();
         $this->isActive = false;
-        $this->wishLists = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -147,7 +141,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = "ROLE_USER";
 
         return array_unique($roles);
@@ -210,45 +203,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-    /**
-     * @inheritDoc
-     */
+
     public function eraseCredentials(): void {}
 
-    /**
-     * @inheritDoc
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @return Collection<int, WishList>
-     */
-    public function getWishLists(): Collection
+    public function getWishList(): ?WishList
     {
-        return $this->wishLists;
+        return $this->wishList;
     }
 
-    public function addWishList(WishList $wishList): static
+    public function setWishList(?WishList $wishList): static
     {
-        if (!$this->wishLists->contains($wishList)) {
-            $this->wishLists->add($wishList);
+        if ($wishList !== null && $wishList->getUser() !== $this) {
             $wishList->setUser($this);
         }
 
-        return $this;
-    }
-
-    public function removeWishList(WishList $wishList): static
-    {
-        if ($this->wishLists->removeElement($wishList)) {
-            // set the owning side to null (unless already changed)
-            if ($wishList->getUser() === $this) {
-                $wishList->setUser(null);
-            }
-        }
+        $this->wishList = $wishList;
 
         return $this;
     }
@@ -258,9 +232,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->resetToken;
     }
 
-    public function setResetToken(?string $token): static
+    public function setResetToken(?string $resetToken): static
     {
-        $this->resetToken = $token;
-        return $this; // Return $this for method chaining
+        $this->resetToken = $resetToken;
+
+        return $this;
     }
 }

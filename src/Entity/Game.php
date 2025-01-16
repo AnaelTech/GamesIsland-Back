@@ -206,24 +206,24 @@ class Game
     /**
      * @return Collection<int, WishList>
      */
-    public function getWishLists(): Collection
-    {
-        return $this->wishLists;
-    }
+    // public function getWishLists(): Collection
+    // {
+    //     return $this->wishLists;
+    // }
 
-    public function addWishList(WishList $wishList): static
-    {
-        if (!$this->wishLists->contains($wishList)) {
-            $this->wishLists->add($wishList);
-        }
+    // public function addWishList(WishList $wishList): static
+    // {
+    //     if (!$this->wishLists->contains($wishList)) {
+    //         $this->wishLists->add($wishList);
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
-    public function removeWishList(WishList $wishList): static
-    {
-        $this->wishLists->removeElement($wishList);
+    // public function removeWishList(WishList $wishList): static
+    // {
+    //     $this->wishLists->removeElement($wishList);
 
-        return $this;
-    }
+    //     return $this;
+    // }
 }

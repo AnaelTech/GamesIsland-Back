@@ -26,15 +26,12 @@ class WishList
     #[Groups(["wishlist:read", "user:read"])]
     private Collection $games;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "wishLists")]
+    #[ORM\OneToOne(targetEntity: User::class, inversedBy: "wishList", cascade: ["persist", "remove"])]
+    #[ORM\JoinColumn(nullable: false, unique: true)] // Chaque utilisateur a une seule wishlist
     private ?User $user = null;
-
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?bool $isLike = null;
 
     public function __construct()
     {
@@ -59,7 +56,6 @@ class WishList
     {
         if (!$this->games->contains($game)) {
             $this->games->add($game);
-            $game->addWishList($this); // Update inverse side
         }
 
         return $this;
@@ -67,9 +63,7 @@ class WishList
 
     public function removeGame(Game $game): static
     {
-        if ($this->games->removeElement($game)) {
-            $game->removeWishList($this); // Update inverse side
-        }
+        $this->games->removeElement($game);
 
         return $this;
     }
@@ -94,18 +88,6 @@ class WishList
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function isLike(): ?bool
-    {
-        return $this->isLike;
-    }
-
-    public function setLike(?bool $isLike): static
-    {
-        $this->isLike = $isLike;
 
         return $this;
     }
